@@ -1,6 +1,6 @@
 import './index.css'
 import { Form, Select, DatePicker, Input, Cascader, Button } from 'antd';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import type { Dayjs } from 'dayjs';
 import type { RootState, AppDispatch } from '@/store';
 import { useSelector, useDispatch } from 'react-redux';
@@ -34,15 +34,25 @@ const Filter = () => {
   const [form] = Form.useForm();
   const dispatch = useDispatch<AppDispatch>();
   const currentRole = useSelector((state: RootState) => state.user.userInfo); // 从 Redux 状态中获取当前角色
+  const isFirstMount = useRef(true); // 跟踪是否首次挂载
+  const prevRoleRef = useRef(currentRole); // 跟踪上一次的角色
 
   useEffect(() => {
-    form.resetFields();
-    if (currentRole === '审批员') {
-      form.setFieldsValue({ status: APPROVAL_STATUS_OPTIONS[1].value });
-      dispatch(fetchProjectList({ status: ApprovalStatus.PENDING }));
-    } else {
-      form.setFieldsValue({ status: APPROVAL_STATUS_OPTIONS[0].value });
-      dispatch(fetchProjectList());
+    const roleChanged = prevRoleRef.current !== currentRole;
+
+    // 只在首次挂载或角色真正改变时才发起请求
+    if (isFirstMount.current || roleChanged) {
+      form.resetFields();
+      if (currentRole === '审批员') {
+        form.setFieldsValue({ status: APPROVAL_STATUS_OPTIONS[1].value });
+        dispatch(fetchProjectList({ status: ApprovalStatus.PENDING }));
+      } else {
+        form.setFieldsValue({ status: APPROVAL_STATUS_OPTIONS[0].value });
+        dispatch(fetchProjectList());
+      }
+
+      isFirstMount.current = false;
+      prevRoleRef.current = currentRole;
     }
   }, [dispatch, currentRole, form]);
 

@@ -8,6 +8,8 @@
 
 接口地址：[Apifox](https://app.apifox.com/project/7498365)
 
+![](./Typedown/818b6ef3-5a69-4e41-bd8c-20c9c64b2b37.png)
+
 ## 2. 技术栈
 
 ### 2.1 前端技术栈
